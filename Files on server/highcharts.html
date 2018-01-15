@@ -1,0 +1,93 @@
+<html>
+  <head>
+      <meta charset = "UTF-8">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+      <script>
+$(document).ready(function(){
+
+	$.getJSON("./ReadTextFile.php").done(function(jsonData){
+                //egen funktion för att skapa upp diagrammet
+                createChart(jsonData);
+
+            });//end getjson
+
+        });//end document ready
+		
+//egen funktion som skapar upp diagrammet
+function createChart(jsonData){
+		
+		$xaxel=[1,2,3,4,5,6,7,8,9,10]; //skapar en array för x-axeln
+    	$reaction=[];//en array för reaktionstider
+		$set = new Set(); //set för att hämta unika namn
+		
+		
+		//hämtar ut unika namn
+		$.each(jsonData,function(idx,data){
+		$set.add(data.name);
+		});
+		
+
+		//skapar diagram div:en fran http://www.highcharts.com/demo/line-basic tryck på knappen til jsfiddle för kod exempel
+		var myChart = Highcharts.chart('container',{
+        title: {
+            text: 'Reaction Times',
+            x: -20 //center
+        },
+        xAxis: {
+            categories: $xaxel,
+			
+			title:{
+				text: 'Attempt'
+			}
+        },
+        yAxis: {
+            title: {
+                text: 'Reaction'
+            },
+            plotLines: [{
+                value: 10,
+                width: 10,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            valueSuffix: ' sec'
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle',
+            borderWidth: 0
+        }
+    });//end container.highcharts()
+	
+		
+			
+			for (let item of $set){
+			$reaction = [];
+			$.each(jsonData,function(idx,data){
+			 if(item.toUpperCase() === data.name.toUpperCase()){
+			 $reaction.push(parseFloat(data.reaction));
+			 }
+		});
+		console.log($reaction);
+		myChart.addSeries({
+			name: item,
+			data: $reaction
+		});
+		};
+
+}
+
+
+	</script>
+  </head>
+  <body>
+
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+  </body>
+</html>
